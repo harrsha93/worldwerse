@@ -1,0 +1,359 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * WordWerse — Futuristic AI Knowledge Universe
+ * Themes: dark (cosmic), light (crystal), royal, forest, desert, sky, cartoon
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-violet: var(--neon-violet);
+  --color-neon-magenta: var(--neon-magenta);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+}
+
+/* DARK — signature cosmic theme (default) */
+:root,
+.theme-dark {
+  --radius: 1rem;
+  --background: oklch(0.13 0.04 270);
+  --foreground: oklch(0.97 0.01 240);
+  --card: oklch(0.18 0.05 270);
+  --card-foreground: oklch(0.97 0.01 240);
+  --popover: oklch(0.16 0.05 270);
+  --popover-foreground: oklch(0.97 0.01 240);
+  --primary: oklch(0.78 0.18 230);
+  --primary-foreground: oklch(0.13 0.04 270);
+  --secondary: oklch(0.25 0.06 280);
+  --secondary-foreground: oklch(0.97 0.01 240);
+  --muted: oklch(0.22 0.04 270);
+  --muted-foreground: oklch(0.7 0.04 250);
+  --accent: oklch(0.7 0.22 310);
+  --accent-foreground: oklch(0.13 0.04 270);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.97 0.01 240);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.78 0.18 230);
+
+  --neon-cyan: oklch(0.85 0.18 220);
+  --neon-violet: oklch(0.7 0.24 300);
+  --neon-magenta: oklch(0.7 0.28 340);
+  --glass: oklch(1 0 0 / 6%);
+  --glass-border: oklch(1 0 0 / 14%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.78 0.18 230), oklch(0.7 0.24 300), oklch(0.7 0.28 340));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.7 0.24 300 / 0.35), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.78 0.18 230 / 0.3), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.78 0.18 230 / 0.4), 0 0 60px oklch(0.7 0.24 300 / 0.2);
+  --shadow-glass: 0 8px 32px oklch(0 0 0 / 0.4);
+}
+
+/* LIGHT — bright crystal theme */
+.theme-light {
+  --background: oklch(0.98 0.01 240);
+  --foreground: oklch(0.18 0.04 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.04 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.04 270);
+  --primary: oklch(0.55 0.22 270);
+  --primary-foreground: oklch(0.98 0.01 240);
+  --secondary: oklch(0.94 0.02 250);
+  --secondary-foreground: oklch(0.18 0.04 270);
+  --muted: oklch(0.94 0.02 250);
+  --muted-foreground: oklch(0.45 0.04 260);
+  --accent: oklch(0.6 0.2 320);
+  --accent-foreground: oklch(0.98 0.01 240);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 240);
+  --border: oklch(0.18 0.04 270 / 12%);
+  --input: oklch(0.18 0.04 270 / 14%);
+  --ring: oklch(0.55 0.22 270);
+
+  --neon-cyan: oklch(0.6 0.18 220);
+  --neon-violet: oklch(0.55 0.24 300);
+  --neon-magenta: oklch(0.6 0.26 340);
+  --glass: oklch(1 0 0 / 70%);
+  --glass-border: oklch(0.18 0.04 270 / 10%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.6 0.18 220), oklch(0.55 0.24 300), oklch(0.6 0.26 340));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.55 0.24 300 / 0.18), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.6 0.18 220 / 0.18), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.55 0.22 270 / 0.25);
+  --shadow-glass: 0 8px 32px oklch(0.18 0.04 270 / 0.08);
+}
+
+/* ROYAL — deep purple & gold */
+.theme-royal {
+  --background: oklch(0.16 0.06 300);
+  --foreground: oklch(0.97 0.02 90);
+  --card: oklch(0.22 0.08 300);
+  --card-foreground: oklch(0.97 0.02 90);
+  --popover: oklch(0.2 0.08 300);
+  --popover-foreground: oklch(0.97 0.02 90);
+  --primary: oklch(0.82 0.16 85);
+  --primary-foreground: oklch(0.18 0.06 300);
+  --secondary: oklch(0.3 0.1 300);
+  --secondary-foreground: oklch(0.97 0.02 90);
+  --muted: oklch(0.26 0.07 300);
+  --muted-foreground: oklch(0.75 0.04 80);
+  --accent: oklch(0.65 0.22 320);
+  --accent-foreground: oklch(0.97 0.02 90);
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.82 0.16 85 / 18%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.82 0.16 85);
+
+  --neon-cyan: oklch(0.82 0.16 85);
+  --neon-violet: oklch(0.65 0.22 320);
+  --neon-magenta: oklch(0.7 0.2 350);
+  --glass: oklch(0.82 0.16 85 / 6%);
+  --glass-border: oklch(0.82 0.16 85 / 20%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.82 0.16 85), oklch(0.65 0.22 320), oklch(0.55 0.2 290));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.65 0.22 320 / 0.4), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.82 0.16 85 / 0.25), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.82 0.16 85 / 0.4);
+  --shadow-glass: 0 8px 32px oklch(0 0 0 / 0.45);
+}
+
+/* FOREST — emerald & moss */
+.theme-forest {
+  --background: oklch(0.16 0.04 160);
+  --foreground: oklch(0.97 0.02 130);
+  --card: oklch(0.21 0.05 160);
+  --card-foreground: oklch(0.97 0.02 130);
+  --popover: oklch(0.19 0.05 160);
+  --popover-foreground: oklch(0.97 0.02 130);
+  --primary: oklch(0.75 0.18 150);
+  --primary-foreground: oklch(0.16 0.04 160);
+  --secondary: oklch(0.28 0.06 160);
+  --secondary-foreground: oklch(0.97 0.02 130);
+  --muted: oklch(0.24 0.05 160);
+  --muted-foreground: oklch(0.72 0.05 140);
+  --accent: oklch(0.78 0.16 100);
+  --accent-foreground: oklch(0.16 0.04 160);
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.98 0.01 130);
+  --border: oklch(0.75 0.18 150 / 18%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.75 0.18 150);
+
+  --neon-cyan: oklch(0.75 0.18 180);
+  --neon-violet: oklch(0.7 0.18 140);
+  --neon-magenta: oklch(0.78 0.16 100);
+  --glass: oklch(0.75 0.18 150 / 6%);
+  --glass-border: oklch(0.75 0.18 150 / 18%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.75 0.18 150), oklch(0.78 0.16 100), oklch(0.7 0.18 180));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.75 0.18 150 / 0.35), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.78 0.16 100 / 0.25), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.75 0.18 150 / 0.4);
+  --shadow-glass: 0 8px 32px oklch(0 0 0 / 0.4);
+}
+
+/* DESERT — sand, terracotta, sun */
+.theme-desert {
+  --background: oklch(0.95 0.04 75);
+  --foreground: oklch(0.25 0.08 40);
+  --card: oklch(1 0.02 80);
+  --card-foreground: oklch(0.25 0.08 40);
+  --popover: oklch(1 0.02 80);
+  --popover-foreground: oklch(0.25 0.08 40);
+  --primary: oklch(0.6 0.18 40);
+  --primary-foreground: oklch(0.98 0.02 80);
+  --secondary: oklch(0.9 0.06 75);
+  --secondary-foreground: oklch(0.25 0.08 40);
+  --muted: oklch(0.9 0.05 75);
+  --muted-foreground: oklch(0.45 0.08 50);
+  --accent: oklch(0.7 0.16 60);
+  --accent-foreground: oklch(0.98 0.02 80);
+  --destructive: oklch(0.55 0.24 25);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.6 0.18 40 / 18%);
+  --input: oklch(0.6 0.18 40 / 14%);
+  --ring: oklch(0.6 0.18 40);
+
+  --neon-cyan: oklch(0.7 0.16 60);
+  --neon-violet: oklch(0.6 0.18 40);
+  --neon-magenta: oklch(0.65 0.2 25);
+  --glass: oklch(1 0.02 80 / 65%);
+  --glass-border: oklch(0.6 0.18 40 / 18%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.7 0.16 60), oklch(0.6 0.18 40), oklch(0.65 0.2 25));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.7 0.16 60 / 0.25), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.6 0.18 40 / 0.22), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.6 0.18 40 / 0.3);
+  --shadow-glass: 0 8px 32px oklch(0.25 0.08 40 / 0.12);
+}
+
+/* SKY — soft blue & cloud */
+.theme-sky {
+  --background: oklch(0.97 0.02 220);
+  --foreground: oklch(0.22 0.06 240);
+  --card: oklch(1 0.005 220);
+  --card-foreground: oklch(0.22 0.06 240);
+  --popover: oklch(1 0.005 220);
+  --popover-foreground: oklch(0.22 0.06 240);
+  --primary: oklch(0.6 0.18 230);
+  --primary-foreground: oklch(0.98 0.01 220);
+  --secondary: oklch(0.92 0.03 220);
+  --secondary-foreground: oklch(0.22 0.06 240);
+  --muted: oklch(0.93 0.03 220);
+  --muted-foreground: oklch(0.45 0.06 240);
+  --accent: oklch(0.7 0.15 200);
+  --accent-foreground: oklch(0.98 0.01 220);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 220);
+  --border: oklch(0.6 0.18 230 / 16%);
+  --input: oklch(0.6 0.18 230 / 14%);
+  --ring: oklch(0.6 0.18 230);
+
+  --neon-cyan: oklch(0.7 0.15 200);
+  --neon-violet: oklch(0.6 0.18 230);
+  --neon-magenta: oklch(0.65 0.18 280);
+  --glass: oklch(1 0.005 220 / 70%);
+  --glass-border: oklch(0.6 0.18 230 / 16%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.7 0.15 200), oklch(0.6 0.18 230), oklch(0.65 0.18 280));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.7 0.15 200 / 0.22), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.6 0.18 230 / 0.2), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.6 0.18 230 / 0.25);
+  --shadow-glass: 0 8px 32px oklch(0.22 0.06 240 / 0.1);
+}
+
+/* CARTOON SCHOOL — playful primaries */
+.theme-cartoon {
+  --background: oklch(0.96 0.04 95);
+  --foreground: oklch(0.2 0.06 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.06 280);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.06 280);
+  --primary: oklch(0.65 0.22 25);
+  --primary-foreground: oklch(0.98 0.01 90);
+  --secondary: oklch(0.9 0.08 95);
+  --secondary-foreground: oklch(0.2 0.06 280);
+  --muted: oklch(0.92 0.06 95);
+  --muted-foreground: oklch(0.4 0.06 280);
+  --accent: oklch(0.7 0.2 200);
+  --accent-foreground: oklch(0.98 0.01 90);
+  --destructive: oklch(0.55 0.24 25);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.2 0.06 280 / 22%);
+  --input: oklch(0.2 0.06 280 / 14%);
+  --ring: oklch(0.65 0.22 25);
+
+  --neon-cyan: oklch(0.7 0.2 200);
+  --neon-violet: oklch(0.6 0.22 290);
+  --neon-magenta: oklch(0.7 0.24 340);
+  --glass: oklch(1 0 0 / 75%);
+  --glass-border: oklch(0.2 0.06 280 / 20%);
+
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.65 0.22 25), oklch(0.75 0.2 95), oklch(0.7 0.2 200));
+  --gradient-aurora: radial-gradient(ellipse at top, oklch(0.7 0.2 200 / 0.25), transparent 60%),
+                     radial-gradient(ellipse at bottom right, oklch(0.65 0.22 25 / 0.22), transparent 60%);
+  --shadow-glow: 0 0 30px oklch(0.65 0.22 25 / 0.3);
+  --shadow-glass: 0 8px 32px oklch(0.2 0.06 280 / 0.15);
+}
+
+/* Map .dark to .theme-dark for compatibility with shadcn dark variant */
+.dark { color-scheme: dark; }
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { min-height: 100%; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    background-image: var(--gradient-aurora);
+    background-attachment: fixed;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background-color: var(--glass);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--glass-border);
+  }
+  .glass-strong {
+    background-color: color-mix(in oklab, var(--card) 70%, transparent);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid var(--glass-border);
+  }
+  .text-gradient {
+    background: var(--gradient-cosmic);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-cosmic { background: var(--gradient-cosmic); }
+  .glow { box-shadow: var(--shadow-glow); }
+  .glow-sm { box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 40%, transparent); }
+  .neon-border { border: 1px solid color-mix(in oklab, var(--primary) 50%, transparent); }
+  .stars {
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, oklch(1 0 0 / 0.6), transparent),
+      radial-gradient(1px 1px at 70% 60%, oklch(1 0 0 / 0.5), transparent),
+      radial-gradient(1.5px 1.5px at 40% 80%, oklch(1 0 0 / 0.7), transparent),
+      radial-gradient(1px 1px at 85% 20%, oklch(1 0 0 / 0.5), transparent),
+      radial-gradient(1px 1px at 10% 70%, oklch(1 0 0 / 0.4), transparent);
+  }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  .animate-float { animation: float-slow 6s ease-in-out infinite; }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 40%, transparent); }
+    50% { box-shadow: 0 0 40px color-mix(in oklab, var(--primary) 60%, transparent), 0 0 80px color-mix(in oklab, var(--accent) 30%, transparent); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 30%, transparent), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+}

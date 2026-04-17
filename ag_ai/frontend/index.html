@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WORKFLORA — Agentic Workflow Designer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & VARIABLES ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #050507;
+      --bg2:       #0c0c10;
+      --bg3:       #12121a;
+      --red:       #e60012;
+      --red2:      #ff2a3a;
+      --red-dim:   rgba(230,0,18,.18);
+      --red-glow:  rgba(230,0,18,.55);
+      --white:     #f0f0f5;
+      --grey:      #888;
+      --border:    rgba(230,0,18,.35);
+      --mono:      'Share Tech Mono', monospace;
+      --orb:       'Orbitron', sans-serif;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND GRID ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(230,0,18,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,0,18,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── SCANLINE OVERLAY ──────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.12) 2px,
+        rgba(0,0,0,.12) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 36px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(230,0,18,.06) 0%, transparent 100%);
+    }
+
+    .logo {
+      font-family: var(--orb);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 6px;
+      color: var(--red);
+      text-shadow: 0 0 24px var(--red-glow), 0 0 4px var(--red);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { text-shadow: 0 0 24px var(--red-glow), 0 0 4px var(--red); }
+      50%      { text-shadow: 0 0 40px var(--red-glow), 0 0 8px var(--red), 0 0 60px rgba(230,0,18,.2); }
+    }
+
+    .logo span { color: var(--white); }
+
+    .status-bar {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--grey);
+      display: flex;
+      gap: 20px;
+    }
+
+    .status-bar .dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: blink 1.4s step-end infinite;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────── */
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: calc(100vh - 70px);
+    }
+
+    /* ── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-section {
+      padding: 20px;
+      border-bottom: 1px solid rgba(230,0,18,.12);
+    }
+
+    .panel-title {
+      font-family: var(--orb);
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--red);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    /* Drop zone */
+    #dropZone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 26px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--bg3);
+      position: relative;
+    }
+
+    #dropZone:hover, #dropZone.dragover {
+      border-color: var(--red);
+      background: var(--red-dim);
+      box-shadow: inset 0 0 20px rgba(230,0,18,.08), 0 0 12px var(--red-dim);
+    }
+
+    #dropZone input[type=file] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+
+    #dropZone .dz-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+
+    #dropZone p {
+      font-size: 11px;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    #dropZone p strong { color: var(--white); }
+
+    /* File list */
+    #fileList {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 20px;
+    }
+
+    #fileList::-webkit-scrollbar { width: 3px; }
+    #fileList::-webkit-scrollbar-track { background: transparent; }
+    #fileList::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all .18s;
+      font-size: 12px;
+      position: relative;
+    }
+
+    .file-item:hover { border-color: var(--border); background: var(--bg3); }
+
+    .file-item.active {
+      border-color: var(--red);
+      background: var(--red-dim);
+      box-shadow: 0 0 10px rgba(230,0,18,.1);
+    }
+
+    .file-icon { font-size: 16px; flex-shrink: 0; }
+
+    .file-meta { flex: 1; overflow: hidden; }
+    .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--white); }
+    .file-size { color: var(--grey); font-size: 10px; }
+
+    .file-del {
+      background: none; border: none; cursor: pointer;
+      color: var(--grey); font-size: 14px; padding: 2px 5px;
+      border-radius: 3px; transition: color .15s;
+    }
+    .file-del:hover { color: var(--red); }
+
+    .empty-msg {
+      text-align: center; color: var(--grey);
+      font-size: 12px; padding: 20px 0;
+    }
+
+    /* Chat box */
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .chat-box::-webkit-scrollbar { width: 3px; }
+    .chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .chat-msg {
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.6;
+      animation: fadeUp .25s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(6px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .chat-msg.user { background: var(--red-dim); border: 1px solid var(--border); }
+    .chat-msg.ai   { background: var(--bg3); border: 1px solid rgba(255,255,255,.06); color: #ccc; }
+    .chat-msg.sys  { color: var(--grey); font-style: italic; font-size: 11px; }
+
+    .chat-input-row {
+      display: flex; gap: 6px; padding: 14px 20px 14px;
+      border-top: 1px solid rgba(230,0,18,.12);
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .chat-input-row input:focus { border-color: var(--red); }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn {
+      font-family: var(--orb);
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      padding: 9px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .18s;
+      text-transform: uppercase;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, var(--red), var(--red2));
+      color: #fff;
+      box-shadow: 0 0 14px rgba(230,0,18,.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(230,0,18,.6);
+    }
+
+    .btn-primary:disabled {
+      opacity: .45; cursor: not-allowed; transform: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--grey);
+    }
+
+    .btn-ghost:hover { border-color: var(--red); color: var(--white); }
+
+    .btn-sm { padding: 7px 10px; font-size: 9px; }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+      font-family: var(--orb);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--grey);
+      flex: 1;
+    }
+
+    .toolbar-title span { color: var(--white); }
+
+    /* Workflow canvas */
+    #workflowCanvas {
+      flex: 1;
+      overflow: auto;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Placeholder */
+    .placeholder {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      text-align: center;
+      color: var(--grey);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .placeholder .ph-icon {
+      font-size: 56px;
+      display: block;
+      margin-bottom: 16px;
+      opacity: .25;
+    }
+
+    .placeholder p {
+      font-size: 13px;
+      line-height: 1.8;
+      opacity: .5;
+    }
+
+    /* Workflow summary */
+    #wfSummary {
+      width: 100%;
+      max-width: 720px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    #wfSummary h2 {
+      font-family: var(--orb);
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: 3px;
+      text-shadow: 0 0 16px var(--red-glow);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    #wfSummary p {
+      font-size: 13px;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    /* Workflow graph */
+    #wfGraph {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* Step node */
+    .step-row { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+    .step-node {
+      width: 100%;
+      max-width: 620px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+      position: relative;
+      cursor: pointer;
+      transition: all .22s;
+      animation: nodeIn .4s ease both;
+    }
+
+    @keyframes nodeIn {
+      from { opacity:0; transform:scale(.94) translateY(10px); }
+      to   { opacity:1; transform:scale(1) translateY(0); }
+    }
+
+    .step-node:hover {
+      border-color: var(--red);
+      box-shadow: 0 0 20px rgba(230,0,18,.2), inset 0 0 16px rgba(230,0,18,.04);
+      transform: translateY(-2px);
+    }
+
+    .step-node.expanded { border-color: var(--red2); background: var(--bg3); }
+
+    /* type colour band */
+    .step-node::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 4px;
+      border-radius: 10px 0 0 10px;
+      background: var(--type-color, var(--red));
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step-num {
+      font-family: var(--orb);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--red);
+      min-width: 28px;
+    }
+
+    .step-type-badge {
+      font-size: 9px;
+      letter-spacing: 2px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid;
+      text-transform: uppercase;
+      font-family: var(--orb);
+    }
+
+    .step-title-text {
+      font-family: var(--orb);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 1px;
+      flex: 1;
+    }
+
+    .step-chevron {
+      color: var(--grey);
+      font-size: 12px;
+      transition: transform .2s;
+    }
+
+    .step-node.expanded .step-chevron { transform: rotate(180deg); }
+
+    .step-body {
+      display: none;
+      padding-top: 14px;
+      padding-left: 40px;
+    }
+
+    .step-node.expanded .step-body { display: block; }
+
+    .step-desc {
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .substep-list {
+      list-style: none;
+    }
+
+    .substep-list li {
+      font-size: 11px;
+      color: var(--grey);
+      padding: 4px 0 4px 14px;
+      position: relative;
+      border-left: 1px solid rgba(230,0,18,.25);
+      margin-left: 4px;
+      line-height: 1.6;
+    }
+
+    .substep-list li::before {
+      content: '›';
+      position: absolute;
+      left: 4px;
+      color: var(--red);
+    }
+
+    /* Connector arrow */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 42px;
+      position: relative;
+    }
+
+    .connector::before {
+      content: '';
+      width: 1px;
+      flex: 1;
+      background: linear-gradient(180deg, rgba(230,0,18,.5), rgba(230,0,18,.2));
+    }
+
+    .connector-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--red);
+      padding: 2px 6px;
+      background: var(--bg);
+      border: 1px solid rgba(230,0,18,.2);
+      border-radius: 3px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+    }
+
+    .arrow-head {
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid rgba(230,0,18,.6);
+    }
+
+    /* ── PROGRESS / TOAST ─────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 12px;
+      max-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 16px rgba(230,0,18,.15);
+      z-index: 999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s ease;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    #toast .toast-title {
+      font-family: var(--orb);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--red);
+      margin-bottom: 4px;
+    }
+
+    /* ── LOADING SPINNER ──────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(230,0,18,.2);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TYPE COLORS ──────────────────────────────────────── */
+    .type-input      { --type-color: #00aaff; color: #00aaff; border-color: #00aaff; }
+    .type-process    { --type-color: #e60012; color: #e60012; border-color: #e60012; }
+    .type-decision   { --type-color: #ffaa00; color: #ffaa00; border-color: #ffaa00; }
+    .type-output     { --type-color: #00cc66; color: #00cc66; border-color: #00cc66; }
+    .type-integration{ --type-color: #aa44ff; color: #aa44ff; border-color: #aa44ff; }
+    .type-review     { --type-color: #ff6600; color: #ff6600; border-color: #ff6600; }
+
+    /* ── EXPORT PANEL ─────────────────────────────────────── */
+    #exportPanel {
+      display: none;
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #exportPanel.visible { display: flex; }
+
+    #exportPanel span {
+      font-family: var(--orb);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--grey);
+      margin-right: 4px;
+    }
+
+    /* ── SCROLLBAR global ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(230,0,18,.3); border-radius: 2px; }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .panel-left { height: 280px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">WORK<span>FLORA</span></div>
+    <div class="status-bar">
+      <span><span class="dot"></span>SYSTEM ONLINE</span>
+      <span id="docCount">0 DOCS LOADED</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── LEFT PANEL ─────────────────────────────────────── -->
+    <aside class="panel-left">
+
+      <!-- Upload -->
+      <div class="panel-section">
+        <div class="panel-title">// Upload Documents</div>
+        <div id="dropZone">
+          <input type="file" id="fileInput" accept=".txt,.pdf,.docx" multiple />
+          <span class="dz-icon">⬆</span>
+          <p><strong>Drop files here</strong><br />or click to browse<br />.txt · .pdf · .docx</p>
+        </div>
+      </div>
+
+      <!-- Loaded files -->
+      <div class="panel-section" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+        <div class="panel-title">// Loaded Files</div>
+        <div id="fileList">
+          <div class="empty-msg">No files loaded yet.</div>
+        </div>
+      </div>
+
+      <!-- AI Chat -->
+      <div style="border-top:1px solid rgba(230,0,18,.12);display:flex;flex-direction:column;max-height:260px;">
+        <div style="padding:14px 20px 0;">
+          <div class="panel-title">// Ask About Document</div>
+        </div>
+        <div id="chatBox" class="chat-box" style="padding:0 20px;"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Ask anything about the document…" />
+          <button class="btn btn-primary btn-sm" onclick="sendChat()">▶</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── RIGHT PANEL ────────────────────────────────────── -->
+    <section class="panel-right">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-title">WORKFLOW DESIGNER — <span id="wfDocName">NO DOCUMENT SELECTED</span></div>
+        <button class="btn btn-primary" id="generateBtn" onclick="generateWorkflow()" disabled>
+          ⚡ GENERATE WORKFLOW
+        </button>
+        <button class="btn btn-ghost" onclick="clearCanvas()">✕ CLEAR</button>
+      </div>
+
+      <!-- Canvas -->
+      <div id="workflowCanvas">
+        <div class="placeholder" id="placeholder">
+          <span class="ph-icon">◈</span>
+          <p>Upload a document and click<br /><strong style="color:var(--white)">Generate Workflow</strong><br />to visualize the process.</p>
+        </div>
+        <div id="wfSummary" style="display:none"></div>
+        <div id="wfGraph"></div>
+      </div>
+
+      <!-- Export bar -->
+      <div id="exportPanel">
+        <span>EXPORT:</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportJSON()">⬇ JSON</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportMarkdown()">⬇ MARKDOWN</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.print()">⎙ PRINT</button>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-title">SYSTEM</div><div id="toastMsg"></div></div>
+
+<script>
+  const API = "http://127.0.0.1:8000";
+
+  // ── State ──────────────────────────────────────────────
+  let docs = [];           // [{name, chars, index}]
+  let activeDoc = null;    // index
+  let currentWorkflow = null;
+
+  // ── Toast ──────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg, title = "SYSTEM", duration = 3000) {
+    const t = document.getElementById("toast");
+    t.querySelector(".toast-title").textContent = title;
+    document.getElementById("toastMsg").textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), duration);
+  }
+
+  // ── File upload (from input or drop) ──────────────────
+  const dz = document.getElementById("dropZone");
+  dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("dragover"); });
+  dz.addEventListener("dragleave", () => dz.classList.remove("dragover"));
+  dz.addEventListener("drop", e => {
+    e.preventDefault();
+    dz.classList.remove("dragover");
+    [...e.dataTransfer.files].forEach(uploadFile);
+  });
+
+  document.getElementById("fileInput").addEventListener("change", function() {
+    [...this.files].forEach(uploadFile);
+    this.value = "";
+  });
+
+  async function uploadFile(file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    toast(`Uploading ${file.name}…`, "UPLOAD");
+    try {
+      const res = await fetch(`${API}/upload/`, { method: "POST", body: fd });
+      if (!res.ok) throw new Error((await res.json()).detail || "Upload failed");
+      await refreshDocs();
+      toast(`${file.name} loaded!`, "SUCCESS ✓");
+    } catch (err) {
+      toast(err.message, "ERROR ✕", 5000);
+    }
+  }
+
+  // ── Fetch & render doc list ────────────────────────────
+  async function refreshDocs() {
+    const res = await fetch(`${API}/documents/`);
+    docs = await res.json();
+    renderFileList();
+    document.getElementById("docCount").textContent = `${docs.length} DOC${docs.length !== 1 ? "S" : ""} LOADED`;
+    document.getElementById("generateBtn").disabled = docs.length === 0;
+    if (docs.length > 0 && activeDoc === null) setActiveDoc(docs[docs.length - 1].index);
+  }
+
+  function setActiveDoc(idx) {
+    activeDoc = idx;
+    const doc = docs.find(d => d.index === idx);
+    document.getElementById("wfDocName").textContent = doc ? doc.name.toUpperCase() : "NONE";
+    renderFileList();
+  }
+
+  function renderFileList() {
+    const el = document.getElementById("fileList");
+    if (!docs.length) {
+      el.innerHTML = '<div class="empty-msg">No files loaded yet.</div>';
+      return;
+    }
+    el.innerHTML = docs.map(d => `
+      <div class="file-item ${d.index === activeDoc ? 'active' : ''}" onclick="setActiveDoc(${d.index})">
+        <span class="file-icon">${getFileIcon(d.name)}</span>
+        <div class="file-meta">
+          <div class="file-name">${d.name}</div>
+          <div class="file-size">${(d.chars / 1000).toFixed(1)}k chars</div>
+        </div>
+        <button class="file-del" onclick="deleteDoc(event,${d.index})">✕</button>
+      </div>`).join("");
+  }
+
+  function getFileIcon(name) {
+    if (name.endsWith(".pdf")) return "📄";
+    if (name.endsWith(".docx")) return "📝";
+    return "📃";
+  }
+
+  async function deleteDoc(e, idx) {
+    e.stopPropagation();
+    await fetch(`${API}/documents/${idx}`, { method: "DELETE" });
+    if (activeDoc === idx) activeDoc = null;
+    await refreshDocs();
+    toast("Document removed.", "DELETE");
+  }
+
+  // ── Generate workflow ──────────────────────────────────
+  async function generateWorkflow() {
+    if (activeDoc === null) { toast("Select a document first.", "ERROR ✕"); return; }
+    const btn = document.getElementById("generateBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>ANALYSING…';
+
+    document.getElementById("placeholder").style.display = "none";
+    document.getElementById("wfSummary").style.display = "none";
+    document.getElementById("wfGraph").innerHTML = "";
+    document.getElementById("exportPanel").classList.remove("visible");
+
+    try {
+      const res = await fetch(`${API}/workflow/?doc_index=${activeDoc}`, { method: "POST" });
+      if (!res.ok) throw new Error((await res.json()).detail || "Generation failed");
+      const data = await res.json();
+      currentWorkflow = data.workflow;
+      renderWorkflow(currentWorkflow);
+      document.getElementById("exportPanel").classList.add("visible");
+      toast("Workflow generated!", "SUCCESS ✓");
+    } catch (err) {
+      toast(err.message, "ERROR ✕", 6000);
+      document.getElementById("placeholder").style.display = "";
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "⚡ GENERATE WORKFLOW";
+    }
+  }
+
+  // ── Render workflow ────────────────────────────────────
+  function renderWorkflow(wf) {
+    const summaryEl = document.getElementById("wfSummary");
+    summaryEl.style.display = "";
+    summaryEl.innerHTML = `<h2>${wf.title}</h2><p>${wf.summary}</p>`;
+
+    const graphEl = document.getElementById("wfGraph");
+    graphEl.innerHTML = "";
+
+    // Build adjacency: for each step, find outgoing connections
+    const connMap = {};
+    (wf.connections || []).forEach(c => {
+      if (!connMap[c.from]) connMap[c.from] = [];
+      connMap[c.from].push(c);
+    });
+
+    wf.steps.forEach((step, i) => {
+      const row = document.createElement("div");
+      row.className = "step-row";
+      row.style.animationDelay = `${i * 60}ms`;
+
+      const typeClass = `type-${step.type || "process"}`;
+
+      const substepsHTML = (step.substeps && step.substeps.length)
+        ? `<ul class="substep-list">${step.substeps.map(s => `<li>${s}</li>`).join("")}</ul>` : "";
+
+      row.innerHTML = `
+        <div class="step-node ${typeClass}" id="node-${step.id}" onclick="toggleStep(${step.id})">
+          <div class="step-header">
+            <span class="step-num">${String(step.id).padStart(2,"0")}</span>
+            <span class="step-type-badge ${typeClass}">${step.type || "process"}</span>
+            <span class="step-title-text">${step.title}</span>
+            <span class="step-chevron">▼</span>
+          </div>
+          <div class="step-body">
+            <p class="step-desc">${step.description}</p>
+            ${substepsHTML}
+          </div>
+        </div>`;
+
+      graphEl.appendChild(row);
+
+      // Connector to next
+      const outs = connMap[step.id] || [];
+      const nextConn = outs.find(c => c.to === step.id + 1) || outs[0];
+      if (i < wf.steps.length - 1) {
+        const conn = document.createElement("div");
+        conn.className = "connector";
+        if (nextConn && nextConn.label) {
+          conn.innerHTML = `<span class="connector-label">${nextConn.label}</span>`;
+        }
+        conn.innerHTML += `<div class="arrow-head"></div>`;
+        graphEl.appendChild(conn);
+      }
+    });
+  }
+
+  function toggleStep(id) {
+    const el = document.getElementById(`node-${id}`);
+    el.classList.toggle("expanded");
+  }
+
+  function clearCanvas() {
+    document.getElementById("wfSummary").style.display = "none";
+    document.getElementById("wfGraph").innerHTML = "";
+    document.getElementById("placeholder").style.display = "";
+    document.getElementById("exportPanel").classList.remove("visible");
+    currentWorkflow = null;
+  }
+
+  // ── Chat ───────────────────────────────────────────────
+  async function sendChat() {
+    const input = document.getElementById("chatInput");
+    const q = input.value.trim();
+    if (!q) return;
+    if (activeDoc === null) { toast("Select a document first.", "ERROR ✕"); return; }
+
+    appendChat(q, "user");
+    input.value = "";
+    appendChat("Thinking…", "sys", "thinking");
+
+    try {
+      const res = await fetch(`${API}/chat/?question=${encodeURIComponent(q)}&doc_index=${activeDoc}`, {
+        method: "POST"
+      });
+      const data = await res.json();
+      removeChatThinking();
+      appendChat(data.answer, "ai");
+    } catch (err) {
+      removeChatThinking();
+      appendChat("Error: " + err.message, "sys");
+    }
+  }
+
+  document.getElementById("chatInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") sendChat();
+  });
+
+  function appendChat(text, role, id = null) {
+    const box = document.getElementById("chatBox");
+    const div = document.createElement("div");
+    div.className = `chat-msg ${role}`;
+    if (id) div.id = `chat-${id}`;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function removeChatThinking() {
+    const el = document.getElementById("chat-thinking");
+    if (el) el.remove();
+  }
+
+  // ── Export ─────────────────────────────────────────────
+  function exportJSON() {
+    if (!currentWorkflow) return;
+    const blob = new Blob([JSON.stringify(currentWorkflow, null, 2)], { type: "application/json" });
+    download(blob, "workflow.json");
+  }
+
+  function exportMarkdown() {
+    if (!currentWorkflow) return;
+    const wf = currentWorkflow;
+    let md = `# ${wf.title}\n\n> ${wf.summary}\n\n## Steps\n\n`;
+    wf.steps.forEach(s => {
+      md += `### ${s.id}. ${s.title} \`[${s.type}]\`\n${s.description}\n`;
+      if (s.substeps && s.substeps.length) {
+        md += s.substeps.map(sub => `- ${sub}`).join("\n") + "\n";
+      }
+      md += "\n";
+    });
+    const blob = new Blob([md], { type: "text/markdown" });
+    download(blob, "workflow.md");
+  }
+
+  function download(blob, name) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+  }
+
+  // ── Init ───────────────────────────────────────────────
+  refreshDocs().catch(() => {
+    toast("Backend not reachable — start uvicorn first.", "OFFLINE ✕", 8000);
+  });
+</script>
+</body>
+</html>
